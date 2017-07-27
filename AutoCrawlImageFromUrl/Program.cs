@@ -17,6 +17,8 @@ namespace AutoCrawlImageFromUrl
             ImageCrawler imgCra = new ImageCrawler();
             Console.WriteLine("Hay nhap duong link trang web can lay anh: ");
             imgCra.DuongLink = Console.ReadLine();
+            Console.WriteLine("Chon che do Crawl (\"a\" hoac \"b\"):");
+            imgCra.CrawlingMode = Console.ReadLine();
             Console.WriteLine("Nhap kich thuoc file toi thieu (kB): ");
             var kichThuocFileInString = Console.ReadLine();
             imgCra.KichThuocFile = Convert.ToInt32(kichThuocFileInString);
@@ -30,13 +32,20 @@ namespace AutoCrawlImageFromUrl
         public string DuongLink { get; set; }
         public int KichThuocFile { get; set; }
         public string FileType { get; set; }
+        public string CrawlingMode { get; set; }
 
         public void AutoCrawlImageFromUrl()
         {
             Task<string> htmlTask = RequestHtmlAsync(DuongLink);
             string html = htmlTask.Result;
-            //List<string> imgUrls = FindImageUrl(html);
-            List<string> imgUrls = FindImageUrlBasedAhref(html);
+            List<string> imgUrls = null;
+            if (CrawlingMode == "a")
+            {
+                imgUrls = FindImageUrl(html);
+            }else if(CrawlingMode == "b")
+            {
+                imgUrls = FindImageUrlBasedAhref(html);
+            }
             DownloadImageAsync(imgUrls);
             Console.WriteLine("Chuong trinh dang chay ...");
         }
