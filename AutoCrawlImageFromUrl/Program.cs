@@ -15,7 +15,7 @@ namespace AutoCrawlImageFromUrl
         static void Main(string[] args)
         {
             ImageCrawler imgCra = new ImageCrawler();
-            Console.WriteLine("Hay nhap duong link trang web can lay anh: ");
+            Console.WriteLine("Hay nhap duong link trang web can crawl anh: ");
             imgCra.DuongLink = Console.ReadLine();
             Console.WriteLine("Chon che do Crawl (\"a\" hoac \"b\"):");
             imgCra.CrawlingMode = Console.ReadLine();
