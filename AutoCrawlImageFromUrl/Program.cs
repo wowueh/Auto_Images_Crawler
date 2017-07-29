@@ -41,10 +41,10 @@ namespace AutoCrawlImageFromUrl
             List<string> imgUrls = null;
             if (FindingMode == "a")
             {
-                imgUrls = FindImageUrl(html);
+                imgUrls = FindImageUrlBasedImgTag(html);
             }else if(FindingMode == "b")
             {
-                imgUrls = FindImageUrlBasedAhref(html);
+                imgUrls = FindImageUrlBasedAhrefTag(html);
             }
             DownloadImageAsync(imgUrls);
             Console.WriteLine("Chuong trinh dang chay ...");
@@ -62,7 +62,7 @@ namespace AutoCrawlImageFromUrl
         }
 
         // Find URLs of Images base <img>
-        private List<string> FindImageUrl(string target)
+        private List<string> FindImageUrlBasedImgTag(string target)
         {
             // Load the Html into the agility pack
             HtmlDocument doc = new HtmlDocument();
@@ -95,7 +95,7 @@ namespace AutoCrawlImageFromUrl
         }
 
         // Find URLs of Images base <a href>
-        private List<string> FindImageUrlBasedAhref(string target)
+        private List<string> FindImageUrlBasedAhrefTag(string target)
         {
             //Alert
             Console.WriteLine("Su dung FindImageUrlBasedAhref!");
