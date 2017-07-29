@@ -18,7 +18,7 @@ namespace AutoCrawlImageFromUrl
             Console.WriteLine("Hay nhap duong link trang web can lay anh: ");
             imgCra.DuongLink = Console.ReadLine();
             Console.WriteLine("Chon che do Crawl (\"a\" hoac \"b\"):");
-            imgCra.CrawlingMode = Console.ReadLine();
+            imgCra.FindingMode = Console.ReadLine();
             Console.WriteLine("Nhap kich thuoc file toi thieu (kB): ");
             var kichThuocFileInString = Console.ReadLine();
             imgCra.KichThuocFile = Convert.ToInt32(kichThuocFileInString);
@@ -32,17 +32,17 @@ namespace AutoCrawlImageFromUrl
         public string DuongLink { get; set; }
         public int KichThuocFile { get; set; }
         public string FileType { get; set; }
-        public string CrawlingMode { get; set; }
+        public string FindingMode { get; set; }
 
         public void AutoCrawlImageFromUrl()
         {
             Task<string> htmlTask = RequestHtmlAsync(DuongLink);
             string html = htmlTask.Result;
             List<string> imgUrls = null;
-            if (CrawlingMode == "a")
+            if (FindingMode == "a")
             {
                 imgUrls = FindImageUrl(html);
-            }else if(CrawlingMode == "b")
+            }else if(FindingMode == "b")
             {
                 imgUrls = FindImageUrlBasedAhref(html);
             }
@@ -61,7 +61,7 @@ namespace AutoCrawlImageFromUrl
             return responseContent;
         }
 
-        // Find URLs of Images in html document which matching the minimum size of image
+        // Find URLs of Images base <img>
         private List<string> FindImageUrl(string target)
         {
             // Load the Html into the agility pack
