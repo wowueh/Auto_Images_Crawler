@@ -18,7 +18,7 @@ namespace AutoCrawlImageFromUrl
             Console.WriteLine("Hay nhap duong link trang web can crawl anh: ");
             imgCra.DuongLink = Console.ReadLine();
             Console.WriteLine("Chon che do Crawl (\"a\" hoac \"b\"):");
-            imgCra.CrawlingMode = Console.ReadLine();
+            imgCra.FindingMode = Console.ReadLine();
             Console.WriteLine("Nhap kich thuoc file toi thieu (kB): ");
             var kichThuocFileInString = Console.ReadLine();
             imgCra.KichThuocFile = Convert.ToInt32(kichThuocFileInString);
@@ -32,19 +32,19 @@ namespace AutoCrawlImageFromUrl
         public string DuongLink { get; set; }
         public int KichThuocFile { get; set; }
         public string FileType { get; set; }
-        public string CrawlingMode { get; set; }
+        public string FindingMode { get; set; }
 
         public void AutoCrawlImageFromUrl()
         {
             Task<string> htmlTask = RequestHtmlAsync(DuongLink);
             string html = htmlTask.Result;
             List<string> imgUrls = null;
-            if (CrawlingMode == "a")
+            if (FindingMode == "a")
             {
-                imgUrls = FindImageUrl(html);
-            }else if(CrawlingMode == "b")
+                imgUrls = FindImageUrlBasedImgTag(html);
+            }else if(FindingMode == "b")
             {
-                imgUrls = FindImageUrlBasedAhref(html);
+                imgUrls = FindImageUrlBasedAhrefTag(html);
             }
             DownloadImageAsync(imgUrls);
             Console.WriteLine("Chuong trinh dang chay ...");
@@ -61,8 +61,8 @@ namespace AutoCrawlImageFromUrl
             return responseContent;
         }
 
-        // Find URLs of Images in html document which matching the minimum size of image
-        private List<string> FindImageUrl(string target)
+        // Find URLs of Images base <img>
+        private List<string> FindImageUrlBasedImgTag(string target)
         {
             // Load the Html into the agility pack
             HtmlDocument doc = new HtmlDocument();
@@ -95,7 +95,7 @@ namespace AutoCrawlImageFromUrl
         }
 
         // Find URLs of Images base <a href>
-        private List<string> FindImageUrlBasedAhref(string target)
+        private List<string> FindImageUrlBasedAhrefTag(string target)
         {
             //Alert
             Console.WriteLine("Su dung FindImageUrlBasedAhref!");
