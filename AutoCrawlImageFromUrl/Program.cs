@@ -15,14 +15,23 @@ namespace AutoCrawlImageFromUrl
         static void Main(string[] args)
         {
             ImageCrawler imgCra = new ImageCrawler();
-            Console.WriteLine("Hay nhap duong link trang web can crawl anh: ");
-            imgCra.DuongLink = Console.ReadLine();
-            Console.WriteLine("Chon che do Crawl (\"a\" hoac \"b\"):");
+            Console.WriteLine("Chon che do tim kiem (\"a\" hoac \"b\" hoac ...):");
             imgCra.FindingMode = Console.ReadLine();
             Console.WriteLine("Nhap kich thuoc file toi thieu (kB): ");
             var kichThuocFileInString = Console.ReadLine();
             imgCra.KichThuocFile = Convert.ToInt32(kichThuocFileInString);
-            imgCra.AutoCrawlImageFromUrl();
+            Console.WriteLine("Chon source tim kiem: url hay html:");
+            imgCra.SourceMode = Console.ReadLine();
+            if (imgCra.SourceMode == "u")
+            {
+                Console.WriteLine("Hay nhap duong link trang web can crawl anh: ");
+                imgCra.DuongLink = Console.ReadLine();
+                imgCra.AutoCrawlImageFromUrl(); 
+            }
+            else if(imgCra.SourceMode=="h")
+            {
+                imgCra.AutoCrawlImageFromHtmlPlaintext();
+            }
             Console.ReadKey();
         }
     }
@@ -33,11 +42,14 @@ namespace AutoCrawlImageFromUrl
         public int KichThuocFile { get; set; }
         public string FileType { get; set; }
         public string FindingMode { get; set; }
-
+        public string SourceMode { get; set; }
+        // Crawl images from a specific URL
         public void AutoCrawlImageFromUrl()
         {
             Task<string> htmlTask = RequestHtmlAsync(DuongLink);
             string html = htmlTask.Result;
+            //Console.WriteLine(html);
+            //Console.ReadKey();
             List<string> imgUrls = null;
             if (FindingMode == "a")
             {
@@ -45,6 +57,31 @@ namespace AutoCrawlImageFromUrl
             }else if(FindingMode == "b")
             {
                 imgUrls = FindImageUrlBasedAhrefTag(html);
+            }else if(FindingMode == "c")
+            {
+                imgUrls = FindImageUrlBasedArticleClass(html);
+            }
+            DownloadImageAsync(imgUrls);
+            Console.WriteLine("Chuong trinh dang chay ...");
+        }
+
+        // Crawl images from a html plaintext
+        public void AutoCrawlImageFromHtmlPlaintext()
+        {
+            Console.WriteLine("Vui long paste Html Plaintext vao day: ");
+            string html = Console.ReadLine();
+            List<string> imgUrls = null;
+            if (FindingMode == "a")
+            {
+                imgUrls = FindImageUrlBasedImgTag(html);
+            }
+            else if (FindingMode == "b")
+            {
+                imgUrls = FindImageUrlBasedAhrefTag(html);
+            }
+            else if (FindingMode == "c")
+            {
+                imgUrls = FindImageUrlBasedArticleClass(html);
             }
             DownloadImageAsync(imgUrls);
             Console.WriteLine("Chuong trinh dang chay ...");
@@ -128,6 +165,40 @@ namespace AutoCrawlImageFromUrl
                 }
             }
             Console.WriteLine("Tim thay {0} link anh.", imageUrls.Count());
+            return imageUrls;
+        }
+
+        // Find URLs of Images base <Article class>
+        private List<string> FindImageUrlBasedArticleClass(string target)
+        {
+            // Load the Html into the agility pack
+            HtmlDocument doc = new HtmlDocument();
+            doc.LoadHtml(target);
+
+            // Now, using LINQ to get all Images
+            List<HtmlNode> imageNodes = null;
+            //imageNodes = doc.DocumentNode.SelectNodes("//div[@class='photo-wrapper']//img").ToList();
+            imageNodes = doc.DocumentNode.SelectNodes("//img").ToList();
+            int nodeNum = imageNodes.Count;
+            Console.WriteLine("Trang web co {0} hinh anh.", nodeNum);
+            List<string> imageUrls = new List<string>();
+            foreach (HtmlNode node in imageNodes)
+            {
+                string src = node.Attributes["src"].Value;
+                string httppattern = "^http.+";
+                Regex httpregex = new Regex(httppattern);
+                if (httpregex.IsMatch(src))
+                {
+                    imageUrls.Add(src);
+                    Console.WriteLine(src);
+                }
+                //else
+                //{
+                //    imageUrls.Add(DuongLink + src);
+                //    Console.WriteLine(DuongLink + src);
+                //}
+            }
+            Console.WriteLine("Co {0} link anh http.", imageUrls.Count());
             return imageUrls;
         }
 
